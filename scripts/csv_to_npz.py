@@ -11,6 +11,7 @@
 
 import argparse
 import numpy as np
+import os
 
 from isaaclab.app import AppLauncher
 
@@ -297,18 +298,21 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene, joi
                 "body_ang_vel_w",
             ):
                 log[k] = np.stack(log[k], axis=0)
+                
+            print(f"[INFO]: Saving motion to npz: ./motions/{args_cli.output_name}.npz")
+            os.makedirs('./motions', exist_ok=True)
+            np.savez(f'./motions/{args_cli.output_name}.npz', **log)
+            print(f"[INFO]: Done Saving motion to npz: ./motions/{args_cli.output_name}.npz")
+            break
+            # import wandb
 
-            np.savez("/tmp/motion.npz", **log)
-
-            import wandb
-
-            COLLECTION = args_cli.output_name
-            run = wandb.init(project="csv_to_npz", name=COLLECTION)
-            print(f"[INFO]: Logging motion to wandb: {COLLECTION}")
-            REGISTRY = "motions"
-            logged_artifact = run.log_artifact(artifact_or_path="/tmp/motion.npz", name=COLLECTION, type=REGISTRY)
-            run.link_artifact(artifact=logged_artifact, target_path=f"wandb-registry-{REGISTRY}/{COLLECTION}")
-            print(f"[INFO]: Motion saved to wandb registry: {REGISTRY}/{COLLECTION}")
+            # COLLECTION = args_cli.output_name
+            # run = wandb.init(project="csv_to_npz", name=COLLECTION)
+            # print(f"[INFO]: Logging motion to wandb: {COLLECTION}")
+            # REGISTRY = "motions"
+            # logged_artifact = run.log_artifact(artifact_or_path="/tmp/motion.npz", name=COLLECTION, type=REGISTRY)
+            # run.link_artifact(artifact=logged_artifact, target_path=f"wandb-registry-{REGISTRY}/{COLLECTION}")
+            # print(f"[INFO]: Motion saved to wandb registry: {REGISTRY}/{COLLECTION}")
 
 
 def main():
